@@ -72,7 +72,6 @@ namespace Course_Lms.Data
 
 				});
 					context.SaveChanges();
-
 				}
 
 			}
