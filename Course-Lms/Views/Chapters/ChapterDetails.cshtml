@@ -1,0 +1,85 @@
+﻿@using Course_Lms.ViewModels
+@model ChapterViewModel
+@{
+	ViewData["Title"] = ViewData["CourseName"] + "-" + Model.ChapterData.Title;
+	Layout = "_Layout2";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.css" integrity="sha512-8D+M+7Y6jVsEa7RD6Kv/Z7EImSpNpQllgaEIQAtqHcI0H6F4iZknRj0Nx1DCdB+TwBaS+702BGWYC0Ze2hpExQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<style>
+	.courseSideBar {
+		position: fixed;
+		top: 0;
+		left: -350px;
+		z-index: 999;
+		flex-direction: column;
+		width: 320px;
+		height: 100%;
+		transition: all .6s ease;
+	}
+
+		.courseSideBar.active {
+			left: 0;
+		}
+	
+
+	@@media (min-width: 768px) {
+		.navbar-container{
+			padding-left:20rem;	
+		}
+
+		.open-menu, .dismiss {
+			display: none;
+		}
+		.courseSideBar {
+			left: 0;
+		}
+			
+		.chaptersMain {
+			padding-left: 22rem;
+		}
+	}
+</style>
+
+
+
+<div style="height: 100%;">
+	@section sidebar {
+		<div class="courseSideBar">
+			<div class="d-flex flex-column h-100" style="overflow-y: auto;border-right-width: 1px;background-color: #ffffff;box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.2)">
+				<div class="dismiss">
+					<i data-lucide="arrow-left"></i>
+				</div>
+				<div style="display: flex;padding: 15px;padding-left: 2rem;flex-direction: column;border-bottom: 1px solid;border-color: #dfd2d2ab;">
+					<h1 style="font-weight: 600; ">
+						@ViewData["CourseName"]
+					</h1>
+					@if (Model.ChapterData.IsPurchased)
+					{
+						<div style="margin-top:2.5rem;" id="ProgressBar">
+							@await Html.PartialAsync("_ProgressBarPartial", @Model.ProgressCount)
+						</div>
+					}
+				</div>
+				<div class="d-flex flex-column w-100" id="SideBarItems">
+					@* 			/*is active using onclick*/*@
+
+					@await Html.PartialAsync("~/Views/Chapters/Partials/_SideBarItemsPartial.cshtml", @Model.ChaptersList)
+
+				</div>
+			</div>
+		</div>
+	}
+	<main class="chaptersMain" style="width:100%">
+		<div id="ChapterData">
+			@await Html.PartialAsync("~/Views/Chapters/Partials/_ChapterPartial.cshtml", @Model.ChapterData)
+		</div>
+	</main>
+
+</div>
+@section Scripts {
+<script type="module" src="~/js/ChapterDetailsPage.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/&#64;tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+	
+}

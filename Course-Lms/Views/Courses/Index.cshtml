@@ -1,0 +1,102 @@
+﻿@using Course_Lms.ViewModels
+@model CoursesPageViewModel
+@{
+	ViewData["Title"] = "Courses";
+}
+<link rel="stylesheet" href="~/css/homepage.css" />
+
+<div class="search-container">
+
+@await Html.PartialAsync("~/Views/Courses/Partials/_SearchInputPartial.cshtml")
+</div>
+<div style="padding: 1.5rem;">
+	<div>
+		<div class="categoryContainer">
+			@foreach (var category in Model.Categories)
+			{
+				@await Html.PartialAsync("~/Views/Courses/Partials/_CategoriesPartial.cshtml", category)
+			}
+		</div>
+	</div>
+	<span id="CoursesCards">
+		@await Html.PartialAsync("~/Views/Courses/Partials/_CourseCardPartial.cshtml", Model.Courses)
+	</span>
+</div>
+@section Scripts {
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+	<script>
+		function checkSearchParams() {
+			var params = new URLSearchParams(window.location.search);
+			var categoryId = params.get('categoryId');
+			var title = params.get('title');
+
+			if (!categoryId) {
+				var categoryId = params.get('categoryid');
+			}
+			if (title) {
+				$('.search-input').val(title);
+			}
+			if (categoryId) {
+				$('.categoryButton').removeClass('isSelected');
+				$('.categoryButton[data-categoryid="' + categoryId + '"]').addClass('isSelected');
+			}
+		}
+
+
+		$('.categoryButton').on('click', function (e) {
+			var clickedButton = $(e.currentTarget);
+			if (clickedButton.hasClass('isSelected')) {
+				clickedButton.removeClass('isSelected');
+
+				var params = new URLSearchParams(window.location.search);
+				params.delete('categoryId');
+				params.delete('categoryid');
+				history.pushState(null, null, "?" + params.toString());
+			} else {
+				var selected = $('.isSelected');
+				if (selected) {
+					selected.removeClass('isSelected');
+				}
+				clickedButton.addClass('isSelected');
+				var categoryId = clickedButton.data('categoryid');
+				var params = new URLSearchParams(window.location.search);
+				params.set('categoryId', categoryId);
+				history.pushState(null, null, "?" + params.toString());
+			}
+			$("#CoursesCards").load('@Url.Action("Index", "Courses")', params.toString())
+
+		});
+		$('.search-input').on('keyup', function (e) {
+			if (e.key === 'Enter' || e.keyCode === 13) {
+				handleSearch();
+			}
+		});
+
+		function handleSearch() {
+			var searchTerm = $('.search-input').val();
+			var params = new URLSearchParams(window.location.search);
+			if (searchTerm === "") {
+				params.delete('title');
+				$("#CoursesCards").load('@Url.Action("Index", "Courses")', params.toString())
+			} else {
+
+				params.set('title', searchTerm);
+				$("#CoursesCards").load('@Url.Action("Index", "Courses")', params.toString())
+			}
+			history.pushState(null, null, "?" + params.toString());
+		}
+		// Handle back/forward browser buttons
+		window.onpopstate = function () {
+			$.get(document.location, function (data) {
+				$("#CoursesCards").html(data);
+			});
+		};
+
+
+		$(document).ready(function () {
+			checkSearchParams();
+		});
+	</script>
+}

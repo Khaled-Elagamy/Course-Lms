@@ -1,0 +1,10 @@
+﻿@model bool
+@{
+	string iconClass = Model ? "bi bi-x-circle" : "bi bi-check-circle";
+	string buttonVariant = Model ? "" : "btn-success";
+}
+<button type="button" class="btn @buttonVariant progressbtn" onclick="handleProgress('@Model')">
+
+	@(Model ? "Not completed" : "Mark as complete")
+	<i class="@iconClass"></i>
+</button>

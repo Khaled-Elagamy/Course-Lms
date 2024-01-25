@@ -1,0 +1,71 @@
+﻿@using Course_Lms.Logic.DTO
+@model List<CourseViewDTO>
+
+@if (Model.Count == 0)
+{
+	<div style="margin-top: 2.5rem;font-size: 0.875rem;line-height: 1.25rem;text-align: center;">
+		No courses found
+	</div>
+}
+<div class="cardContainer">
+	@foreach (var course in Model)
+	{
+
+		<a asp-controller="Chapters" asp-action="ChapterDetails" asp-route-courseName="@course.Title" class="group card">
+			<div class="image">
+				<img src="@Url.Content("/images/"+ course.ImageUrl)" alt="@course.Title" onerror="handleImageError(this)"/>
+			</div>
+			<div style="display: flex;padding-top: 0.5rem;flex-direction: column; ">
+				<div class="title">
+					@course.Title
+				</div>
+				<p style="font-size: 0.75rem;line-height: 1rem;color: rgb(100 116 139); ">
+					@course.CategoryName
+				</p>
+				<div class="chapters">
+					<div style="display: flex;column-gap: 0.25rem;align-items: center;color: rgb(100 116 139);">
+						<i class="bi bi-book" style="color: rgb(3 105 161);"></i>
+						<span>
+							@course.NumberOfChapters @(course.NumberOfChapters == 1 ? "Chapter" : "Chapters")
+						</span>
+					</div>
+				</div>
+				<p style="font-size: 0.75rem;line-height: 1rem;color: rgb(100 116 139); ">
+					<b>About this course :</b> @course.Description
+				</p>
+				@if (@course.Progress != null)
+				{
+					<div>
+						<div class="progress" style="height:0.5rem;">
+							<div class="progress-bar" role="progressbar" style="width: @course.Progress%; background-color:@(course.Progress == 100 ? "rgb(25 135 84)" : "rgb(3 105 161)");" aria-valuenow="@course.Progress" aria-valuemin="0" aria-valuemax="100"></div>
+						</div>
+						<p style="font-weight:600;margin-top: 0.5rem; font-size: 0.75rem;line-height: 1rem;color:@(course.Progress == 100 ? "rgb(25 135 84)" : "rgb(3 105 161)");">
+							@course.Progress% Complete
+						</p>
+					</div>
+				}    
+				
+				else
+				{
+					<p style="font-weight: 500;color: rgb(51 65 85); margin-bottom:0;">
+						@if (course.Price == 0)
+						{
+							<span>Free</span>
+						}
+						else
+						{
+							<span>$@course.Price</span>
+
+						}
+					</p>
+				}
+			</div>
+		</a>
+	}
+</div>
+<script>
+	function handleImageError(img) {
+		img.src = '/images/noimage.jpg';
+		img.alt = 'Default Image';
+	}
+</script>

@@ -1,0 +1,76 @@
+﻿@using Course_Lms.Logic.DTO
+@model IEnumerable<SideBarChaptersListDTO>
+
+@{
+}
+<style>
+	
+	.sideBarItem {
+		display: flex;
+		padding-top: 1rem;
+		padding-bottom: 0.5rem;
+		column-gap: 0.5rem;
+		align-items: center;
+	}
+
+		.sideBarItem img{
+			filter: invert(28%) sepia(41%) saturate(334%) hue-rotate(176deg) brightness(97%) contrast(85%);
+			margin-left: 0.5rem;
+			width: 1rem;
+			height: 1rem;
+		}
+
+	.isActive {
+		color: rgb(51 65 85);
+		background-color: rgb(240, 240, 240);
+	}
+
+		.isActive:hover {
+			color: rgb(51 65 85);
+			background-color: rgb(226 232 240/20);
+		}
+
+		.isActive .activeItem {
+			opacity: 1;
+		}
+
+		.isActive img {
+			filter: invert(22%) sepia(5%) saturate(3371%) hue-rotate(176deg) brightness(95%) contrast(88%);
+		}
+
+	.isCompleted {
+		color: rgb(4 120 87);
+	}
+
+		.isCompleted .activeItem {
+			border-color: rgb(4 120 87);
+		}
+
+		.isCompleted:hover {
+			color: rgb(4 120 87);
+		}
+
+		.isCompleted img {
+			filter: invert(20%) sepia(46%) saturate(4752%) hue-rotate(155deg) brightness(100%) contrast(97%);
+		}
+
+		.isCompleted.isActive {
+			background-color: rgb(190 235 214/20);
+		}
+
+
+	
+</style>
+@foreach (var chapter in Model)
+{
+	string icon = chapter.IsLocked ? "lock.svg" : (chapter.IsCompleted ? "check-circle.svg":"play-circle.svg" );
+
+	<button type="button" class="btn chapterbtn leftSide-nav-btn @(chapter.IsCompleted?"isCompleted":"")" data-chapter-id="@chapter.Id">
+		<div class="sideBarItem">
+			<img src="/svgs/@icon" alt="icon" width="24" height="24">
+			@chapter.Title
+		</div>		
+		<div class="activeItem"></div>
+	</button>
+}
+			

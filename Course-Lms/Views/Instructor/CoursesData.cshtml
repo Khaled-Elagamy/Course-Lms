@@ -1,0 +1,130 @@
+﻿ @using Course_Lms.Logic.DTO
+@model List<CourseInfoDTO>
+
+@{
+	ViewData["Title"] = "Courses Data";
+}
+<link href="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/b-colvis-2.4.2/fc-4.3.0/r-2.5.0/sb-1.6.0/sp-2.2.0/datatables.min.css" rel="stylesheet">
+
+
+<style>
+	body {
+		font: 90%/1.45em "Helvetica Neue", HelveticaNeue, Verdana, Arial, Helvetica, sans-serif;
+		margin: 0;
+		padding: 0;
+		color: #333;
+		background-color: #fff;
+	}
+
+
+	th.dt-type-numeric {
+		text-align: left !important;
+	}
+
+	td.dt-type-numeric {
+		text-align: left !important;
+	}
+
+	div.dataTables_filter {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 10px;
+	}
+
+</style>
+<div style="padding:1.5rem">
+	<a class="btn btn-dark createbtn" href="/Courses/New/CreateCourse"><i class="bi bi-plus-circle"></i> New Course</a>
+
+	<table id="coursesTable" class="table" style="width:100%">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Price</th>
+				<th>Created At</th>
+				<th>Updated At</th>
+				<th>Published</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@{
+				if (Model != null)
+				{
+					foreach (var Course in Model)
+					{
+						<tr>
+
+							<td>@Course.Title</td>
+							<td>
+								@if (Course.Price == 0)
+								{
+									<span>Free</span>
+								}
+								else
+								{
+									if (Course.Price == null)
+									{
+										<span>NotDefined</span>
+									}
+									else
+									{
+										<span>$@Course.Price</span>
+									}
+								}
+							</td>
+							<td>@Course.CreatedAt.ToString("yyyy-MM-dd")</td>
+							<td>@Course.UpdatedAt.ToString("yyyy-MM-dd")</td>
+							<td>
+								@if (Course.IsPublished)
+								{
+									<span class="badge rounded-pill" style="background-color: rgb(6, 104, 160)">Published</span>
+								}
+								else
+								{
+
+									<span class="badge rounded-pill bg-secondary" style="background-color: rgb(100 116 139);">Draft</span>
+								}
+							</td>
+							<td>
+								<a href="@Url.Action("CourseSetup", "Courses", new { id = Course.Id})">
+									<i class="bi bi-three-dots"></i>
+								</a>
+							</td>
+						</tr>
+					}
+				}
+			}
+		</tbody>
+	</table>
+</div>
+@section myDataTable {
+	<script src="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/b-colvis-2.4.2/fc-4.3.0/r-2.5.0/sb-1.6.0/sp-2.2.0/datatables.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			var table = $('#coursesTable').DataTable({
+				paging: true,
+				autoWidth: true,
+				columnDefs: [
+					{ "orderable": false, "targets": -1 }
+				],
+				dom: 'Bfrtip',
+				buttons: [{
+					extend: 'colvis',
+					columns: ':not(:last-child)'
+				}],
+				language: {
+					buttons: {
+						colvis: 'Columns Visible'
+					},
+					search: "",
+				}
+			});
+
+			$('div.dataTables_filter input').attr('placeholder', 'Filter Courses...');
+
+			$('div.dataTables_filter').append($('.createbtn'));
+			$('.buttons-colvis').addClass('btn-sm');
+		});
+
+	</script>
+} 

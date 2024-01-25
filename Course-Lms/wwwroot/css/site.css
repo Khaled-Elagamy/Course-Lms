@@ -1,0 +1,313 @@
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+
+body {
+    --sb-track-color: #adbbc1;
+    --sb-thumb-color: #54b9d0;
+    --sb-size: 11px;
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    font-family: 'Inter';
+    font-size: 16px !important;
+}
+
+    body::-webkit-scrollbar {
+        width: var(--sb-size)
+    }
+
+    body::-webkit-scrollbar-track {
+        background: var(--sb-track-color);
+        border-radius: 15px;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color);
+        border-radius: 15px;
+        border: 2px solid #8a959a;
+    }
+
+
+.footer {
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px; /* Vertically center the text there */
+}
+/*Layout*/
+.left-nav-container {
+    position: fixed;
+    flex-direction: column;
+    width: 14rem;
+    height: 100%;
+    top: 0;
+    left: -255px;
+    z-index: 999;
+    transition: all .6s ease;
+    box-shadow: 3px 3px 3px rgba(51, 51, 51, 0.5);
+}
+
+.navbar-container {
+    
+    width: 100%;
+    height: 80px;
+}
+
+.left-nav-container.active {
+    left: 0;
+}
+
+@media (min-width: 768px) {
+    .left-nav-container {
+        left: 0;
+    }
+
+    .open-menu, .dismiss {
+        display: none;
+    }
+
+   
+
+    .alert {
+        padding-left: 21rem;
+    }
+
+    .navbar-container {
+        padding-left: 14rem;
+    }
+}
+
+.routes {
+    display: flex;
+    padding-left: 1.5rem;
+    column-gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    color: rgb(100 116 139);
+}
+
+    .routes:hover {
+        color: rgb(71 85 105);
+        background-color: rgb(203 213 225/20);
+    }
+
+.activeRoute {
+    color: rgb(3 105 161) !important;
+    background-color: rgb(203 237 255);
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(51, 51, 51, 0.7);
+    z-index: 998;
+    opacity: 0;
+    transition: all .5s ease-in-out;
+}
+
+    .overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+.dismiss {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: all .3s;
+    background: #b7acac;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 35px;
+    cursor: pointer;
+}
+
+    .dismiss:hover,
+    .dismiss:focus {
+        background: #555;
+        color: #fff;
+    }
+
+.open-menu {
+    padding: .25rem .75rem;
+    margin: 3px;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: .25rem;
+    transition: box-shadow .15s ease-in-out;
+}
+
+
+/*Chapter Completion*/
+.publish-btn {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    background-color: transparent;
+}
+
+    .publish-btn:hover {
+        background-color: hsl(210, 40%, 96.1%);
+        color: hsl(222.2, 47.4%, 11.2%);
+    }
+
+/*Alerts*/
+.custom-alert {
+    position: relative;
+    padding: 1rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+
+    .custom-alert i {
+        margin-right: 10px;
+    }
+
+    .custom-alert.error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+
+    .custom-alert.warning {
+        color: #664d03;
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+    }
+
+    .custom-alert.success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+.badge {
+    padding: .35em .95em !important;
+}
+
+    .badge:hover {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+    }
+
+.gradient-bg {
+    border-radius: 0.375rem;
+    background: linear-gradient(to top, #bdbdbd, #ffffff);
+    height: 15rem;
+}
+
+.locked {
+    border-radius: 0.375rem;
+    background: linear-gradient(to top, #1e293b, #bdb8b8);
+    row-gap: 0.5rem;
+}
+/*Nav*/
+
+.activeItem {
+    margin-left: auto;
+    height: 100%;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    opacity: 0;
+    border-color: rgb(51 65 85);
+    border: 2px solid;
+    border-radius: 30px;
+}
+
+.leftSide-nav-btn {
+    display: flex;
+    height: 50px;
+    padding: inherit;
+    padding-left: 1.5rem;
+    column-gap: 0.5rem;
+    align-items: center;
+    line-height: 1.25rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    color: rgb(100 116 139);
+}
+
+    .leftSide-nav-btn:hover {
+        color: rgb(71 85 105);
+        background-color: rgb(203 213 225/20);
+    }
+
+.sideBarItem {
+    display: flex;
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    column-gap: 0.5rem;
+    align-items: center;
+}

@@ -1,0 +1,170 @@
+﻿@using Course_Lms.Logic.DTO
+@model ChapterViewDTO
+@{
+	ViewData["Title"] = Model.Title;
+
+}
+<style>
+	.btn:focus {
+		box-shadow: none;
+	}
+
+	.progressbtn {
+		width: 100%;
+		border: solid 0.5px;
+	}
+
+		.progressbtn:hover {
+			background-color: #ccccd3;
+		}
+
+	.chapterData {
+		display: flex;
+		padding: 1rem;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+		.chapterData i {
+			margin-left: 0.5rem;
+			width: 1rem;
+			height: 1rem;
+		}
+
+
+
+	#tempimg {
+		height: 100%
+	}
+
+	.enrollbtn {
+		width: 100%;
+		font-weight: 600;
+	}
+
+	@@media (min-width: 768px) {
+		.chapterData {
+			flex-direction: row;
+		}
+
+		.enrollbtn {
+			width: auto;
+		}
+
+		.completebtn {
+			width: auto;
+		}
+	}
+</style>
+
+<input class="id" type="hidden" asp-for="Id" />
+
+
+<div class="custom-alert success" id="completedNotification" style="display:@(Model.IsCompleted ? "block":"none" )">
+	<i class="bi bi-check2-circle"></i>
+	You already completed this chapter.
+</div>
+
+@if (!Model.IsFree && !Model.IsPurchased)
+{
+	<div class="custom-alert warning" id="warningNotification">
+		<i class="bi bi-exclamation-triangle"></i>
+		You need to purchase this course to watch this chapter.
+	</div>
+}
+<div style="padding-bottom:5rem;max-width:70rem;" class="d-flex flex-column ">
+	<div style="padding: 1rem;">
+		<div id="video-container" style="position: relative;aspect-ratio: 16 / 9;">
+
+
+			@if (!Model.IsFree && !Model.IsPurchased)
+			{
+				<div class="d-flex position-absolute top-0 w-100 bottom-0 flex-column justify-content-center align-items-center locked">
+					<img src="~/svgs/secured-lock.svg" alt="Lock" width="40" height="40">
+					<p class="text-sm text-light">
+						This chapter is locked
+					</p>
+				</div>
+			}
+			else
+			{
+				@await Component.InvokeAsync("VideoPlayer", new { chapterId = Model.Id, filename = (!Model.IsFree && !Model.IsPurchased) ? "" : Model.VideoUrl })
+			}
+		</div>
+	</div>
+	<div class="chapterData">
+		<h2 style="margin-bottom: 0.5rem;font-size: 1.5rem;line-height: 2rem;font-weight: 600;">
+			@Model.Title
+		</h2>
+		@if (Model.IsPurchased)
+		{
+			<div id="ProgressButton">
+				@await Html.PartialAsync("~/Views/Chapters/Partials/_ProgressButtonsPartial.cshtml", @Model.IsCompleted)
+			</div>
+		}
+		else
+		{
+			<form id="checkoutForm" asp-action="CreateCheckoutSession" asp-controller="Payment" method="post">
+				<input type="hidden" name="courseId" id="courseId" value="@Model.CourseId">
+
+				<button type="submit" class="btn btn-dark btn-sm enrollbtn">
+					Enroll for $@Model.Price
+				</button>
+			</form>
+
+		}
+	</div>
+	<hr />
+	<div>
+		<div id="quill-container" style="padding:0rem 1rem;">
+			@Html.Raw(Model.Description)
+		</div>
+	</div>
+</div>
+
+
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css" />
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+
+	$(document).ready(function () {
+		let url = `/Courses/@ViewData["CourseName"]/Chapters/@Model.Id`;
+		history.replaceState(null, null, url);
+
+		var quill = new Quill('#quill-container', {
+			theme: 'bubble',
+			readOnly: true,
+		});
+
+		$(".chapterbtn").removeClass("isActive");
+		$(".chapterbtn[data-chapter-id=" + @Model.Id + "]").addClass("isActive");
+
+
+	});
+	$("#player").ready(function () {
+		var nextChapterId = @Model.NextChapterId ;
+		if (plyrPlayer) {
+			plyrPlayer.on('ended', function () {
+				setTimeout(function () {
+					completeChapter(@Model.Id, nextChapterId, '@ViewData["CourseName"]');
+				}, 650);
+			});
+		}
+	});
+	function handleProgress(completed) {
+		var isCompleted = completed === "True";
+		if (isCompleted) {
+
+
+			unCompleteChapter(@Model.Id);
+		} else {
+			var nextChapterId = @Model.NextChapterId ;
+			completeChapter(@Model.Id, nextChapterId, '@ViewData["CourseName"]');
+		}
+	}
+
+
+
+
+</script>

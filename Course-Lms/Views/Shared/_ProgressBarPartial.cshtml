@@ -1,0 +1,10 @@
+﻿@model int
+
+<div>
+	<div class="progress" style="height:0.5rem;">
+		<div class="progress-bar" role="progressbar" style="width: @Model%;background-color: rgb(25 135 84);" aria-valuenow="@Model" aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+	<p style="font-weight: 500;margin-top: 0.5rem;font-size: 0.875rem;line-height: 1.25rem;color: rgb(25 135 84);">
+			@Model% Complete
+		</p>
+</div>

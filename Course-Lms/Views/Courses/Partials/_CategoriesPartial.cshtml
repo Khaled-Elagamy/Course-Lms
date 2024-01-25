@@ -1,0 +1,19 @@
+﻿@using Course_Lms.ViewModels
+@model CategoriesViewModel
+
+@* <button onclick="onClickFunction('@Model.Id')" class="btn category-item">
+	<div class="icon-container">
+		<i class="@Model.IconClassName"></i>
+	</div>
+	<div class="truncate">
+		@Model.Name
+	</div>
+</button> *@
+<button class="btn categoryButton" data-categoryid="@Model.Id">
+	<div class="icon-container">
+		<img src="~/svgs/@Model.IconClassName" alt="@Model.Name" width="20" height="20">
+	</div>
+	<div class="truncate">
+		@Model.Name
+	</div>
+</button>
