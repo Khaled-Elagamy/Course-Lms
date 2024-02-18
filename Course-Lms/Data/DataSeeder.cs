@@ -47,7 +47,7 @@ namespace Course_Lms.Data
 						Chapters = new List<Chapter>
 					{
 						new Chapter { Title = "Getting Started", Description = "Introduction to the course", VideoUrl = "f6ddeb18-1ddf-4ed6-810d-c809c6fe086d-1.mp4", Position = 1, IsPublished = true, IsFree = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-						new Chapter { Title = "Variables and Data Types", Description = "Understanding variables and data types", VideoUrl = "f6ddeb18-1ddf-4ed6-810d-c809c6fe086d-2", Position = 2, IsPublished = true, IsFree = false, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+						new Chapter { Title = "Variables and Data Types", Description = "Understanding variables and data types", VideoUrl = "f6ddeb18-1ddf-4ed6-810d-c809c6fe086d-2.mp4", Position = 2, IsPublished = true, IsFree = false, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
 					}
 					},
 
@@ -56,7 +56,7 @@ namespace Course_Lms.Data
 						Title = "Web Development Fundamentals",
 						Description = "Explore the fundamentals of web development",
 						ImageUrl="246b6f6_20240118044213330_bogom.png",
-						Price = 39.99f,
+						Price = 0f,
 						IsPublished = true,
 						CategoryId = 2,
 						CreatedAt = DateTime.Now,
@@ -92,6 +92,8 @@ namespace Course_Lms.Data
 
 				//Users
 				var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+				var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
 				string instructorUserEmail = "instructor@test.com";
 
 				var instructorUser = await userManager.FindByEmailAsync(instructorUserEmail);
@@ -100,13 +102,21 @@ namespace Course_Lms.Data
 					var newUser = new ApplicationUser()
 					{
 						FullName = "Instructor User",
-						UserName = "adminUserEmail",
+						UserName = "instructorUserEmail",
 						Email = instructorUserEmail,
 						EmailConfirmed = true
 					};
 					await userManager.CreateAsync(newUser, "Test@1234?");
 					await userManager.AddToRoleAsync(newUser, UserRoles.Instructor);
 
+
+					var instructor = new Instructor
+					{
+						UserId = newUser.Id,
+						Address = "123 Main St"
+					};
+					context.Instructors.Add(instructor);
+					await context.SaveChangesAsync();
 				}
 
 
