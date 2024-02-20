@@ -6,17 +6,54 @@
 }
 <style>
 	.chapter-card {
+		display: flex;
 		margin-bottom: 1rem;
+		column-gap: 0.5rem;
+		align-items: center;
 		border-radius: 0.375rem;
-		border-width: 1px;
-		font-size: 0.92rem;
-		color: rgb(51 65 85);
-		border-color: rgb(226 232 240);
-		cursor: grab;
+		border: 1px solid rgb(227, 232, 241);
+		font-size: 0.875rem;
+		line-height: 1.25rem;
 	}
 
-	span{
-		cursor:default;
+	.chapter-card-draft {
+		color: rgb(51 65 85);
+		background-color: rgb(237 240 245);
+		border-color: rgb(226 232 240);
+	}
+
+	.chapter-card-published {
+		background-color: rgb(224 242 254);
+		color: hsl(198 100% 34% / 1);
+		border-color: rgb(186 230 253);
+	}
+
+	.chapter-grip-icon {
+		padding: 0.75rem 0.5rem;
+		border-top-left-radius: 0.375rem;
+		border-bottom-left-radius: 0.375rem;
+		border-right: 1px solid ;
+		transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 300ms;
+cursor:grab;
+	}
+
+	.chapter-icon-draft {
+		border-right-color: rgb(221 221 221);
+	}
+	.chapter-data-published:hover {
+		border-right-color: rgb(186 230 253);
+		background-color: rgb(186 230 253);
+	}
+
+
+		.chapter-icon-draft:hover {
+			background-color: rgb(203 213 225);
+		}
+
+	span {
+		cursor: default;
 	}
 
 	i {
@@ -26,18 +63,22 @@
 		transition-property: opacity;
 		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 		transition-duration: 300ms;
-		cursor:pointer;
+		cursor: pointer;
 	}
+
 		i:hover {
 			opacity: 0.75;
 		}
 </style>
 @foreach (var chapter in sortedChapters)
 {
-	<div class="chapter-card" data-chapter-id="@chapter.Id">
-		<i class="bi bi-grid-3x3-gap" style="width: 1.25rem;height: 1.25rem;cursor:grab;"></i>
+	<div class="chapter-card @(chapter.IsPublished?"chapter-card-published":"chapter-card-draft")" data-chapter-id="@chapter.Id">
+		<div class="chapter-grip-icon @(chapter.IsPublished?"chapter-icon-published":"chapter-icon-draft")">
+
+			<i class="bi bi-grid-3x3-gap" style="width: 1.25rem;height: 1.25rem;cursor:grab;"></i>
+		</div>
 		@chapter.Title
-		<div class="float-end" style="display: flex;padding-right: 0.5rem;column-gap: 0.5rem;align-items: center;">
+		<div class="d-flex align-items-center" style="margin-left:auto;padding-right: 0.5rem;column-gap: 0.5rem;">
 			@if (chapter.IsFree)
 			{
 
@@ -57,8 +98,5 @@
 
 			</a>
 		</div>
-
-
 	</div>
-
 }

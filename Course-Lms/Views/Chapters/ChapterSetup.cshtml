@@ -1,13 +1,14 @@
 ﻿@using Course_Lms.ViewModels
 @model ChapterSetupViewModel
 @{
-	ViewData["Title"] = "CourseSetup";
+	ViewData["Title"] = "ChapterSetup";
 }
 <head>
 	<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.css" integrity="sha512-8D+M+7Y6jVsEa7RD6Kv/Z7EImSpNpQllgaEIQAtqHcI0H6F4iZknRj0Nx1DCdB+TwBaS+702BGWYC0Ze2hpExQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <style>
+	/* Custom delete popup */
 	.swal-confirm-btn {
 		margin-left: 20px;
 	}
@@ -29,9 +30,7 @@
 	.swal2-popup {
 		display: block !important;
 	}
-
-	.custom-cancel-button {
-	}
+	/* Custom delete popup end */
 
 	.icon {
 		height: 1rem;
@@ -247,29 +246,3 @@
 <link href="https://cdn.jsdelivr.net/npm/&#64;sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 <script type="module" src="~/js/ChapterSetup.js"></script>
-<script>
-	$('.video-edit-button').on('click', function () {
-		let card = $('.video-card');
-		let isEditing = card.hasClass('editing');
-		if (isEditing) {
-			toggleVideoEditability(false);
-		} else {
-			toggleVideoEditability(true);
-		}
-
-	});
-	function toggleVideoEditability(isEditing) {
-		let card = $('.video-card');
-		if (isEditing) {
-			card.addClass('editing');
-			$('.video-edit-button').html('<i class="bi bi-x icon"></i> Cancel ');
-			$('#videoUploadFormContainer').show();
-			$('#video-container').hide();
-		} else {
-			$('.video-edit-button').html('<i class="bi bi-pencil icon"></i> Edit Video');
-			$('#video-container').show();
-			$('#videoUploadFormContainer').hide();
-			card.removeClass('editing');
-		}
-	}
-</script>

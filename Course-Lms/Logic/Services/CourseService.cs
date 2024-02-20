@@ -138,7 +138,7 @@ namespace Course_Lms.Logic.Services
 				await database.SaveAsync();
 			}
 		}
-		public async Task UpdateCoursePropertyAsync(int courseId, string propertyName, string newValue)
+		public async Task UpdateCoursePropertyAsync<T>(int courseId, string propertyName, T? newValue)
 		{
 			var course = await database.Courses.GetByIdAsync(courseId);
 
@@ -146,42 +146,7 @@ namespace Course_Lms.Logic.Services
 			{
 				var parameter = Expression.Parameter(typeof(Course));
 				var property = Expression.Property(parameter, propertyName);
-				var lambda = Expression.Lambda<Func<Course, string>>(property, parameter);
-
-				await database.Courses.UpdateCoursePropertyAsync(courseId, lambda, newValue);
-			}
-			else
-			{
-				throw new InvalidOperationException($"Course with ID {courseId} not found.");
-			}
-		}
-		public async Task UpdateCourseCategoryAsync(int courseId, string propertyName, int? newValue)
-		{
-			var course = await database.Courses.GetByIdAsync(courseId);
-
-			if (course != null)
-			{
-				var parameter = Expression.Parameter(typeof(Course));
-				var property = Expression.Property(parameter, propertyName);
-				var lambda = Expression.Lambda<Func<Course, int?>>(property, parameter);
-
-				await database.Courses.UpdateCoursePropertyAsync(courseId, lambda, newValue);
-			}
-			else
-			{
-				throw new InvalidOperationException($"Course with ID {courseId} not found.");
-			}
-		}
-
-		public async Task UpdateCoursePriceAsync(int courseId, string propertyName, float? newValue)
-		{
-			var course = await database.Courses.GetByIdAsync(courseId);
-
-			if (course != null)
-			{
-				var parameter = Expression.Parameter(typeof(Course));
-				var property = Expression.Property(parameter, propertyName);
-				var lambda = Expression.Lambda<Func<Course, float?>>(property, parameter);
+				var lambda = Expression.Lambda<Func<Course, T?>>(property, parameter);
 
 				await database.Courses.UpdateCoursePropertyAsync(courseId, lambda, newValue);
 			}
@@ -259,7 +224,7 @@ namespace Course_Lms.Logic.Services
 		}
 
 
-		public async Task<string?> SaveImageAsync(IFormFile Image, int courseId)
+		public async Task<string?> SaveImageAsync(IFormFile Image, int courseId, string uuid, string extension)
 		{
 			if (Image != null && Image.Length > 0)
 			{
@@ -272,17 +237,7 @@ namespace Course_Lms.Logic.Services
 					Directory.CreateDirectory(uploadsDirectory);
 				}
 
-				Guid uuid = Guid.NewGuid();
-
-				var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(Image.FileName);
-				var limitedFileName = fileNameWithoutExtension.Length > 5 ? fileNameWithoutExtension.Substring(0, 5) : fileNameWithoutExtension;
-
-				var extension = Path.GetExtension(Image.FileName);
-				// Combine the limited filename and the extension
-				var limitedFileNameWithExtension = limitedFileName + extension;
-
-
-				var uniqueFileName = $"{uuid}_{courseId}_{limitedFileNameWithExtension}";
+				var uniqueFileName = $"{uuid}-{courseId}.{extension}";
 				var filePath = Path.Combine(uploadsDirectory, uniqueFileName);
 
 				using (var fileStream = new FileStream(filePath, FileMode.Create))

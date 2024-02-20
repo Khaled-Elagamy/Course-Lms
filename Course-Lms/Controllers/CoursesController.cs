@@ -167,20 +167,20 @@ namespace Course_Lms.Controllers
 
 						if (floatValue.HasValue)
 						{
-							await _courseService.UpdateCoursePriceAsync(request.EntityId, request.PropertyName, floatValue);
+							await _courseService.UpdateCoursePropertyAsync(request.EntityId, "Price", floatValue);
 						}
 						else
 						{
 							return BadRequest("Invalid float representation");
 						}
 					}
-					else if (request.PropertyName == "CategoryId")
+					else if (request.PropertyName == "Category")
 					{
 						int? categoryId = int.TryParse(request.NewValue, out int intValue) ? intValue : (int?)null;
 
 						if (categoryId.HasValue)
 						{
-							await _courseService.UpdateCourseCategoryAsync(request.EntityId, request.PropertyName, categoryId);
+							await _courseService.UpdateCoursePropertyAsync(request.EntityId, "CategoryId", categoryId);
 						}
 						else
 						{
@@ -226,34 +226,43 @@ namespace Course_Lms.Controllers
 		[HttpPost]
 		[Route("Courses/Api/UploadImage")]
 
-		public async Task<IActionResult> UploadImage(int CourseId, IFormFile ImageFile)
+		public async Task<IActionResult> UploadImage()
 		{
 			try
 			{
-				if (ImageFile != null && ImageFile.Length > 0)
+				var file = Request.Form.Files[0];
+				if (file != null && file.Length > 0)
 				{
-					var uniqueFileName = await _courseService.SaveImageAsync(ImageFile, CourseId);
-
-					if (!string.IsNullOrEmpty(uniqueFileName))
+					if (int.TryParse(Request.Form["courseId"], out int courseId))
 					{
-						await _courseService.UpdateCoursePropertyAsync(CourseId, "ImageUrl", uniqueFileName);
-						return Json(new { success = true, Message = "Image uploaded successfully", image = uniqueFileName });
+						var uuid = Request.Form["uuid"];
+						var extension = Request.Form["extension"];
+
+						var uniqueFileName = await _courseService.SaveImageAsync(file, courseId, uuid, extension);
+
+						if (!string.IsNullOrEmpty(uniqueFileName))
+						{
+							await _courseService.UpdateCoursePropertyAsync(courseId, "ImageUrl", uniqueFileName);
+							return Json(new { Message = "Image uploaded successfully", image = uniqueFileName });
+						}
+						else
+						{
+							return BadRequest(new { Message = "Image upload failed" });
+						}
 					}
 					else
 					{
-						return BadRequest(new { success = true, Message = "Image upload failed" });
+						return BadRequest(new { success = false, Message = "Invalid courseId" });
 					}
 				}
-				// If the image is not provided, handle the error (e.g., show an error message)
-				ModelState.AddModelError("ImageFile", "Please choose a file to upload.");
-				return Json(new { success = false, error = "Invalid request data" });
+				return BadRequest(new { Message = "Image upload failed" });
 			}
 			catch (Exception ex)
 			{
-				// Handle exceptions (optional)
 				return BadRequest(new { Message = "An error occurred: " + ex.Message });
 			}
 		}
+
 		[HttpPost]
 		[Route("Courses/Api/UpdateCompletionText")]
 

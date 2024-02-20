@@ -1,0 +1,85 @@
+﻿
+<script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
+<link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+<!-- partial-view.html -->
+<style>
+	/* Add your custom styles here */
+	#image-dropzone {
+		border: 2px dashed #ccc;
+		background-color: #f9f9f9;
+		padding: 20px;
+		text-align: center;
+	}
+
+		#image-dropzone .upload-icon {
+			font-size: 60px;
+			margin-bottom: 10px;
+			color: #808089;
+		}
+
+		#image-dropzone .dz-message {
+			font-size: 18px;
+			font-weight: 600;
+			color: #325ce3;
+		}
+
+	#image-container {
+		margin-top: 20px;
+	}
+</style>
+<div id="image-dropzone" class="dropzone">
+	<div class="dz-message" data-dz-message>
+		<i class="bi bi-cloud-arrow-up-fill upload-icon"></i><br /> 
+		<span>Drag & Drop image file here or click to upload</span>
+	</div>
+</div>
+
+
+<script>
+	let courseId = document.querySelector('.id').value;
+
+	// Initialize Dropzone
+	Dropzone.autoDiscover = false; 
+	var myDropzone = new Dropzone("#image-dropzone", {
+		url: '/Courses/Api/UploadImage',
+		paramName: "image",
+		maxFiles: 1, 
+		acceptedFiles: "image/*",
+		init: function () {
+			var self = this;
+			this.on("sending", function (file, xhr, formData) {
+				formData.append("courseId", courseId);
+				console.log("courseID" + courseId);
+				formData.append("uuid", file.upload.uuid);
+				var type = file.type.split("/");
+				var fileExtension = type[1];
+				formData.append("extension", fileExtension);
+			});
+			this.on("success", function (file, response) {
+				$.toast({
+					text: response.message,
+					position: 'top-center',
+					icon: 'success'
+				})
+				var newImageUrl = "/images/" + response.image; 
+				$('#courseImage').attr('src', newImageUrl); 
+				self.removeFile(file);
+				toggleImageEditability(false);
+
+			});
+
+			this.on("error", function (file, errorMessage) {
+				console.error("Error uploading image:", file, errorMessage);
+				self.removeFile(file);
+				$.toast({
+					text: errorMessage.message,
+					position: 'top-center',
+					icon: 'error'
+				})
+			});
+
+		}
+	});
+</script>
+
+

@@ -13,16 +13,13 @@ namespace Course_Lms.Logic.Interfaces
 		Task<CoursesPageViewModel> GetCourses(string? userId, string? title, int? categoryId);
 		Task<int> GetCourseIdByNameAsync(string title);
 		Task<IEnumerable<CourseInfoDTO>> GetInstructorCourses(string instructorid);
-
 		Task UpdateChapterOrderAsync(int courseId, List<int> chapterOrder);
-		Task UpdateCourseCategoryAsync(int courseId, string propertyName, int? newValue);
-
-		Task UpdateCoursePriceAsync(int courseId, string propertyName, float? newValue);
-		Task UpdateCoursePropertyAsync(int courseId, string propertyName, string newValue);
+		Task UpdateCoursePropertyAsync<T>(int courseId, string propertyName, T? newValue);
 		Task DeleteCourseAsync(int courseId);
 		Task TogglePublish(int courseId, bool value);
 		Task<CompletionViewModel> GetChapterCompletionData(int courseId);
-		Task<string?> SaveImageAsync(IFormFile Image, int courseId);
+		Task<string?> SaveImageAsync(IFormFile Image, int courseId, string uuid, string extension);
+
 
 	}
 }

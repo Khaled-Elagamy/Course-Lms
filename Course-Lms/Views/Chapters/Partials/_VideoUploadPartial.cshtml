@@ -32,7 +32,7 @@
 <div id="video-dropzone" class="dropzone">
 	<div class="dz-message" data-dz-message>
 		<i class="bi bi-cloud-arrow-up-fill upload-icon"></i><br /> 
-		<span>Choose files or drag and drop</span>
+		<span>Drag & Drop video file here or click to upload</span>
 	</div>
 </div>
 
@@ -47,7 +47,6 @@
 		paramName: "video",
 		maxFiles: 1, 
 		acceptedFiles: "video/*",
-		dictDefaultMessage: "Drag & Drop video file here or click to upload.",
 		init: function () {
 			var self = this;
 			this.on("sending", function (file, xhr, formData) {

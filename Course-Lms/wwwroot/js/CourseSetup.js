@@ -1,10 +1,229 @@
 ﻿import 'https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js';
 
-function toggleEditability(card, isEditing) {
-    card.find('.card-text').prop('contenteditable', isEditing);
-    var cardInput = card.find('.form-control'); // Assuming the input field has the 'form-control' class
-    cardInput.prop('disabled', !isEditing);
+function setupEditableForm(formSelector, propertyName, successCallback) {
+    $(document).ready(function () {
+        let originalText = {}; // Object to store original text for each field
+        $(formSelector).on('submit', function (e) {
+            e.preventDefault();
+
+            let card = $(formSelector + ' .edit-button').closest('.card');
+            let cardText = $(formSelector).find('.form-control');
+            let courseId = document.querySelector('.id').value;
+            let propertyValue = cardText.val();
+
+            //Check if the value has changed
+            if (propertyValue === originalText[formSelector]) {
+                // No change, do not make the AJAX call
+                toggleEditability(card, false);
+                return; // Exit early
+            }
+            //Todo Handel course title error
+            $.ajax({
+                url: '/Courses/Api/UpdateCourseProperty',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    entityId: courseId,
+                    propertyName: propertyName,
+                    newValue: propertyValue
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        cardText.val(propertyValue);
+                        toggleEditability(card, false);
+                        if (successCallback && typeof successCallback === 'function') {
+                            successCallback(response);
+                        }
+                        updateCompletionText();
+                        $.toast({
+                            text: 'Course Updated',
+                            position: 'top-center',
+                            icon: 'success'
+                        })
+                    } else if (response.exists) {
+                        $("#titleErrorMessage").text("A course with this title already exists.");
+                    } else {
+                        console.error(response.error + 'Failed to save data.');
+                        $.toast({
+                            text: 'Failed to save data.',
+                            position: 'top-center',
+                            icon: 'error'
+                        })
+                    }
+                },
+                error: function () {
+                    console.error('Error during data save request.');
+                }
+            });
+        });
+        $(formSelector + ' .edit-button').on('click', function () {
+            let card = $(this).closest('.card');
+            let isEditing = card.hasClass('editing');
+            let cardText = card.find('.form-control');
+            if (isEditing) {
+                cardText.val(originalText[formSelector]);
+                toggleEditability(card, false);
+            } else {
+                toggleEditability(card, true);
+                originalText[formSelector] = cardText.val();
+            }
+        });
+        function toggleEditability(card, isEditing) {
+            card.find('.form-control').prop('disabled', !isEditing);
+            if (isEditing) {
+                card.addClass('editing');
+                $(formSelector + ' .edit-button').html('<i class="bi bi-x icon"></i> Cancel ');
+                $(formSelector + ' .save-button').show();
+            } else {
+                $(formSelector + ' .edit-button').html('<i class="bi bi-pencil icon"></i> Edit ' + propertyName.toLowerCase());
+                $(formSelector + ' .save-button').hide();
+                card.removeClass('editing');
+                if (propertyName == "Title") {
+                    $("#titleErrorMessage").text("");
+                };
+                if (propertyName == "Description") {
+                    $("textarea").each(function () {
+                        resizeTextArea.call(this);
+                    });
+                }
+            }
+        }
+    });
 }
+function setupEditableInput(formSelector, propertyName) {
+    $(document).ready(function () {
+        let originalData = {}; // Object to store original text for each field
+        $(`#${propertyName}-save-button`).on('click', function (e) {
+            e.preventDefault();
+
+            let card = $(`#${propertyName}-edit-button`).closest('.card');
+            let cardText = $(formSelector).find('.form-control');
+            let courseId = document.querySelector('.id').value;
+            let propertyValue = cardText.val();
+
+            if (propertyName == "Category") {
+                propertyValue = $('.selectpicker').val();
+            }
+
+            // Check if updatedCategoryId is undefined or empty
+            if (propertyValue === undefined || propertyValue === '') {
+                $.toast({
+                    text: 'Choose a category',
+                    position: 'top-center',
+                    icon: 'error'
+                })
+                updateCompletionText();
+                return;
+            }
+
+            //Check if the value has changed
+            if (propertyValue === originalData[formSelector]) {
+                toggleEditability(card, false);
+                return;
+            }
+
+            //Todo Handel course title error
+            $.ajax({
+                url: '/Courses/Api/UpdateCourseProperty',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    entityId: courseId,
+                    propertyName: propertyName,
+                    newValue: propertyValue
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        if (propertyName == "Category") {
+                            let selectedName = $('.selectpicker option:selected').text();
+                            $(`#${propertyName}Text`).text(selectedName);
+                        } else {
+                            $(`#${propertyName}Text`).text("$" + propertyValue);
+                        }
+
+                        toggleEditability(card, false);
+
+                        updateCompletionText();
+                        $.toast({
+                            text: 'Course Updated',
+                            position: 'top-center',
+                            icon: 'success'
+                        })
+                    } else {
+                        console.error(response.error + 'Failed to save data.');
+                        $.toast({
+                            text: 'Failed to save data.',
+                            position: 'top-center',
+                            icon: 'error'
+                        })
+                    }
+                },
+                error: function () {
+                    console.error('Error during data save request.');
+                }
+            });
+        });
+        $(`#${propertyName}-edit-button`).on('click', function () {
+            let card = $(this).closest('.card');
+            let isEditing = card.hasClass('editing');
+            let cardText = card.find('.form-control');
+            if (isEditing) {
+                if (propertyName == "Category") {
+                    card.find('.selectpicker').val(originalData[formSelector]);
+                } else {
+                    cardText.val(originalData[formSelector]);
+                }
+                toggleEditability(card, false);
+            } else {
+                toggleEditability(card, true);
+                if (propertyName == "Category") {
+                    originalData[formSelector] = $('.selectpicker').val();
+                } else {
+                    originalData[formSelector] = cardText.val();
+                }
+            }
+        });
+        function toggleEditability(card, isEditing) {
+            card.find('.form-control').prop('disabled', !isEditing);
+            if (isEditing) {
+                card.addClass('editing');
+                $(formSelector).show();
+                if (propertyName == "Category") {
+                    $("#CategoryId").attr('disabled', false);
+                    $('#CategoryId').selectpicker('refresh');
+                }
+                $(`#${propertyName}Text`).hide()
+                $(`#${propertyName}-edit-button`).html('<i class="bi bi-x icon"></i> Cancel ');
+                $(`#${propertyName}-save-button`).show();
+            } else {
+                $(formSelector).hide();
+                if (propertyName == "Category") {
+                    $("#CategoryId").attr('disabled', true);
+                    $('#CategoryId').selectpicker('refresh');
+                }
+                $(`#${propertyName}Text`).show()
+                $(`#${propertyName}-edit-button`).html('<i class="bi bi-pencil icon"></i> Edit ' + propertyName.toLowerCase());
+                $(`#${propertyName}-save-button`).hide();
+                card.removeClass('editing');
+            }
+        }
+    });
+}
+$("textarea").each(function () {
+    this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+}).on("input paste", resizeTextArea);
+function resizeTextArea() {
+    this.style.height = 0;
+    this.style.height = (this.scrollHeight) + "px";
+}
+
+setupEditableForm('#titleForm', 'Title', () => {
+    $("#titleErrorMessage").text("");
+});
+setupEditableForm('#descriptionForm', 'Description', "");
+
+setupEditableInput('#categoryForm', 'Category');
+setupEditableInput('#priceForm', 'Price');
 
 function updateCompletionText() {
     let courseId = $("#courseId").val();
@@ -23,6 +242,8 @@ function updateCompletionText() {
 
 $(document).ready(function () {
     updateCompletionText();
+    $('.loader').hide();
+
     $(".addChapterBtn").on('click', function () {
         // Display the new chapter form
         $("#newChapterForm").toggle();
@@ -64,12 +285,12 @@ $(document).ready(function () {
             }
         });
     });
-    $('.imageInput').hide(); // Hide the <p> element by default
-    let originalText;
-    let courseId = $("#courseId").val();
+    let courseId = $(".id").val();
 
     $(function () {
         $("#sortableChapters").sortable({
+            handle: '.chapter-grip-icon',
+            connectWith: ".chapter-card",
             update: function (event, ui) {
                 let chapterOrder = $(this).sortable('toArray', { attribute: 'data-chapter-id' });
                 chapterOrder = chapterOrder
@@ -78,6 +299,7 @@ $(document).ready(function () {
                     })
                     .map(Number)
                 if (chapterOrder.length > 0) {
+                    $('.loader').show();
                     $.ajax({
                         url: '/Courses/Api/UpdateChapterOrder',
                         type: 'POST',
@@ -97,6 +319,7 @@ $(document).ready(function () {
                                     icon: 'error'
                                 })
                             }
+                            $('.loader').hide();
                         },
                         error: function () {
                             $.toast({
@@ -104,6 +327,7 @@ $(document).ready(function () {
                                 position: 'top-center',
                                 icon: 'error'
                             })
+                            $('.loader').hide();
                         }
                     });
                 } else {
@@ -112,227 +336,36 @@ $(document).ready(function () {
                         position: 'top-center',
                         icon: 'error'
                     })
+                    $('.loader').hide();
                 }
             }
         });
         $("#sortableChapters").disableSelection();
     });
-    $('.category-edit-button').on('click', function () {
-        var card = $(this).closest('.card');
-        var isEditing = card.hasClass('editing');
-
+    $('.image-edit-button').on('click', function () {
+        let card = $('.image-card');
+        let isEditing = card.hasClass('editing');
         if (isEditing) {
-            // If currently editing, cancel editing
-            categorytoggleEditability(card, false);
-            card.removeClass('editing');
-            card.find('.category-edit-button').html('<i class="bi bi-pencil"></i> Edit');
-            card.find('.category-save-button').hide();
+            toggleImageEditability(false);
         } else {
-            // If not editing, start editing
-            categorytoggleEditability(card, true);
-            card.addClass('editing');
-            card.find('.category-edit-button').html('<i class="bi bi-x"></i> Cancel');
-            card.find('.category-save-button').show();
+            toggleImageEditability(true);
         }
-    });
-    function categorytoggleEditability(card, isEditing) {
-        card.find('.form-select').prop('disabled', !isEditing); // Disable/enable the select element
-    }
-
-    $('.category-save-button').on('click', function () {
-        var card = $(this).closest('.card');
-        var courseId = document.querySelector('.id').value;
-        var updatedCategoryId = card.find('.form-select option:selected').val();
-
-        // Check if updatedCategoryId is undefined or empty
-        if (updatedCategoryId === undefined || updatedCategoryId === '') {
-            // Handle the absence of a selected value (e.g., show an alert or provide a default value)
-            console.log('No category selected. Provide a default value or handle it accordingly.');
-            card.removeClass('editing');
-            card.find('.category-edit-button').html('<i class="bi bi-pencil"></i> Edit');
-            card.find('.category-save-button').hide();
-            card.find('.form-select').prop('disabled', true); // Disable/enable the select element
-
-            updateCompletionText();
-            return; // Stop further execution
-        }
-        // Your AJAX request to update the category
-        $.ajax({
-            url: '/Courses/Api/UpdateCourseProperty',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                entityId: courseId,
-                propertyName: "CategoryId",
-                newValue: updatedCategoryId.toString(),
-            }),
-            success: function (response) {
-                if (response.success) {
-                    // Update the UI with the new value received from the server
-                    card.find('.form-select').val(updatedCategoryId);
-                    card.removeClass('editing');
-                    card.find('.category-edit-button').html('<i class="bi bi-pencil"></i> Edit');
-                    card.find('.category-save-button').hide();
-                    card.find('.form-select').prop('disabled', true); // Disable/enable the select element
-                    $.toast({
-                        text: 'Course Updated',
-                        position: 'top-center',
-                        icon: 'success'
-                    })
-                    updateCompletionText();
-                } else {
-                    $.toast({
-                        text: 'Failed to save data.',
-                        position: 'top-center',
-                        icon: 'error'
-                    })
-                    console.error(response.error + 'Failed to save data.');
-                }
-            },
-            error: function (response) {
-                console.log('Error during data save request.' + response);
-            }
-        });
-    });
-    $('.edit-button').on('click', function () {
-        var card = $(this).closest('.card');
-        var isEditing = card.hasClass('editing');
-        var cardText = card.find('.card-text');
-
-        if (isEditing) {
-            // If currently editing, cancel editing
-            cardText.text(originalText);
-            toggleEditability(card, false);
-            card.removeClass('editing');
-            card.find('.edit-button').html('<i class="bi bi-pencil"></i> Edit');
-            card.find('.save-button').hide();
-            $("#titleErrorMessage").text("");
-        } else {
-            // If not editing, start editing
-            toggleEditability(card, true);
-            originalText = cardText.text();
-            card.addClass('editing');
-            card.find('.edit-button').html('<i class="bi bi-x"></i> Cancel');
-            card.find('.save-button').show();
-        }
-    });
-    $('.save-button').on('click', function (e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        var card = $(this).closest('.card');
-        var cardText = card.find('.card-text');
-        var cardTitle = card.find('.card-title');
-        var propertyName = cardTitle.text() // Retrieve property name dynamically
-        var courseId = document.querySelector('.id').value;
-        var propertyValue = cardText.length > 0 ? cardText.text() : card.find('.price-input').val().toString()
-
-        $.ajax({
-            url: '/Courses/Api/UpdateCourseProperty',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                entityId: courseId,
-                propertyName: propertyName,
-                newValue: propertyValue
-            }),
-            success: function (response) {
-                if (response.success) {
-                    // Update the UI with the new value received from the server
-                    cardText.length > 0 ? cardText.text(propertyValue) : card.find('.price-input').value = propertyValue;
-                    toggleEditability(card, false);
-                    card.removeClass('editing');
-                    card.find('.edit-button').html('<i class="bi bi-pencil"></i> Edit');
-                    card.find('.save-button').hide();
-                    $("#titleErrorMessage").text("");
-                    originalText = cardText.text();
-                    updateCompletionText();
-                    $.toast({
-                        text: 'Course Updated',
-                        position: 'top-center',
-                        icon: 'success'
-                    })
-                }
-                else if (response.exists) {
-                    $("#titleErrorMessage").text("A course with this title already exists.");
-                } else {
-                    $.toast({
-                        text: 'Failed to save data.',
-                        position: 'top-center',
-                        icon: 'error'
-                    })
-                    console.error(response.error + 'Failed to save data.');
-                    $("#titleErrorMessage").text("");
-                }
-                console.log(response);
-            },
-            error: function () {
-                console.error('Error during data save request.');
-            }
-        });
-    });
-
-    $('#editImageButton').on('click', function () {
-        var card = $(this).closest('.card');
-        var isEditing = card.hasClass('editing');
-        var image = $('#courseImage');
-        var imageInput = $('.imageInput');
-
-
-        if (isEditing) {
-            // If currently editing, cancel editing
-            toggleEditability(card, false);
-            card.removeClass('editing');
-            card.find('.edit-button').html('<i class="bi bi-pencil"></i> Edit');
-        } else {
-            // If not editing, start editing
-            toggleEditability(card, true);
-            card.addClass('editing');
-            card.find('.edit-button').html('<i class="bi bi-x"></i> Cancel');
-        }
-        // Toggle visibility of image and file input
-        image.toggle();
-        imageInput.toggle();
-    });
-    $('.imageInput').on('change', function () {
-        var input = this;
-        var file = input.files[0];
-        if (!file.type.startsWith('image/')) {
-            // Show an error message
-            Swal.fire('Error', 'Please select a valid image file.', 'error');
-            // Clear the file input
-            input.value = '';
-            return;
-        }
-
-        var formData = new FormData($('#uploadForm')[0]);
-        var courseId = document.querySelector('.id').value;
-        formData.append('CourseId', courseId); // Append the CourseId to the FormData
-
-        $.ajax({
-            url: '/Courses/Api/UploadImage',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire('Success', 'Image uploaded successfully!', 'success');
-                    var newImageUrl = "/images/" + response.image; // Assuming your response contains the new image file name
-                    $('#courseImage').attr('src', newImageUrl);
-                    $("#editImageButton").click();
-                    updateCompletionText();
-                } else {
-                    // Handle failure (e.g., show an error message)
-                    Swal.fire('Error', 'Failed to upload image. Please try again.', 'error');
-                }
-            },
-            error: function () {
-                // Handle error (e.g., show a generic error message)
-                Swal.fire('Error', 'An error occurred during the upload process. Please try again.', 'error');
-            }
-        });
     });
 });
+function toggleImageEditability(isEditing) {
+    let card = $('.image-card');
+    if (isEditing) {
+        card.addClass('editing');
+        $('.image-edit-button').html('<i class="bi bi-x icon"></i> Cancel ');
+        $('#imageUploadFormContainer').show();
+        $('#image-container').hide();
+    } else {
+        $('.image-edit-button').html('<i class="bi bi-pencil icon"></i> Edit image');
+        $('#image-container').show();
+        $('#imageUploadFormContainer').hide();
+        card.removeClass('editing');
+    }
+}
 function handleDelete() {
     let courseId = $("#courseId").val();
     Swal.fire({
@@ -427,5 +460,6 @@ function handlePublish(action) {
         }
     });
 };
+window.toggleImageEditability = toggleImageEditability;
 window.handlePublish = handlePublish;
 window.handleDelete = handleDelete;

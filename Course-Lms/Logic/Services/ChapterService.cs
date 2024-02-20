@@ -243,7 +243,11 @@ namespace Course_Lms.Logic.Services
 			{
 				throw new KeyNotFoundException("Chapter not found");
 			}
-			DeleteOldVideoAsync(chapter.CourseId, chapter.VideoUrl);
+			if (chapter.VideoUrl != null)
+			{
+				DeleteOldVideoAsync(chapter.CourseId, chapter.VideoUrl);
+
+			}
 
 
 			await database.Chapters.DeleteChapterAsync(chapter, chapter.CourseId);

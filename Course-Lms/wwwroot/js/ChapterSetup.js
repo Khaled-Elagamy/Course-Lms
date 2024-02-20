@@ -266,6 +266,31 @@ $(document).ready(function () {
     });
 
 });
+$('.video-edit-button').on('click', function () {
+    let card = $('.video-card');
+    let isEditing = card.hasClass('editing');
+    if (isEditing) {
+        toggleVideoEditability(false);
+    } else {
+        toggleVideoEditability(true);
+    }
+
+});
+function toggleVideoEditability(isEditing) {
+    let card = $('.video-card');
+    if (isEditing) {
+        card.addClass('editing');
+        $('.video-edit-button').html('<i class="bi bi-x icon"></i> Cancel ');
+        $('#videoUploadFormContainer').show();
+        $('#video-container').hide();
+    } else {
+        $('.video-edit-button').html('<i class="bi bi-pencil icon"></i> Edit Video');
+        $('#video-container').show();
+        $('#videoUploadFormContainer').hide();
+        card.removeClass('editing');
+    }
+}
+window.toggleVideoEditability = toggleVideoEditability;
 window.reloadVideoPartial = reloadVideoPartial;
 window.handlePublish = handlePublish;
 window.handleDelete = handleDelete;
